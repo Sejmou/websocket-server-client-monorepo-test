@@ -1,12 +1,10 @@
 import { trpc } from '../utils/trpc';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { signIn, signOut, useSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function AddMessageForm({ onMessagePost }: { onMessagePost: () => void }) {
   const addPost = trpc.post.add.useMutation();
-  const { data: session } = useSession();
   const [message, setMessage] = useState('');
   const [enterToPostMessage, setEnterToPostMessage] = useState(true);
   async function postMessage() {
@@ -22,30 +20,6 @@ function AddMessageForm({ onMessagePost }: { onMessagePost: () => void }) {
 
   const isTyping = trpc.post.isTyping.useMutation();
 
-  const userName = session?.user?.name;
-  if (!userName) {
-    return (
-      <div className="flex w-full justify-between rounded bg-gray-800 px-3 py-2 text-lg text-gray-200">
-        <p className="font-bold">
-          You have to{' '}
-          <button
-            className="inline font-bold underline"
-            onClick={() => signIn()}
-          >
-            sign in
-          </button>{' '}
-          to write.
-        </p>
-        <button
-          onClick={() => signIn()}
-          data-testid="signin"
-          className="h-full rounded bg-indigo-500 px-4"
-        >
-          Sign In
-        </button>
-      </div>
-    );
-  }
   return (
     <>
       <form
@@ -120,8 +94,6 @@ export default function IndexPage() {
     return msgs;
   });
   type Post = NonNullable<typeof messages>[number];
-  const { data: session } = useSession();
-  const userName = session?.user?.name;
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   // fn to add and dedupe new messages onto state
@@ -218,27 +190,6 @@ export default function IndexPage() {
                     </li>
                   </ul>
                 </article>
-                {userName && (
-                  <article>
-                    <h2 className="text-lg text-gray-200">User information</h2>
-                    <ul className="space-y-2">
-                      <li className="text-lg">
-                        You&apos;re{' '}
-                        <input
-                          id="name"
-                          name="name"
-                          type="text"
-                          disabled
-                          className="bg-transparent"
-                          value={userName}
-                        />
-                      </li>
-                      <li>
-                        <button onClick={() => signOut()}>Sign Out</button>
-                      </li>
-                    </ul>
-                  </article>
-                )}
               </div>
             </div>
           </div>
@@ -263,19 +214,7 @@ export default function IndexPage() {
                 {messages?.map((item) => (
                   <article key={item.id} className=" text-gray-50">
                     <header className="flex space-x-2 text-sm">
-                      <h3 className="text-base">
-                        {item.source === 'RAW' ? (
-                          item.name
-                        ) : (
-                          <a
-                            href={`https://github.com/${item.name}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {item.name}
-                          </a>
-                        )}
-                      </h3>
+                      <h3 className="text-base">{item.name}</h3>
                       <span className="text-gray-500">
                         {new Intl.DateTimeFormat('en-GB', {
                           dateStyle: 'short',
@@ -311,29 +250,3 @@ export default function IndexPage() {
     </>
   );
 }
-
-/**
- * If you want to statically render this page
- * - Export `appRouter` & `createContext` from [trpc].ts
- * - Make the `opts` object optional on `createContext()`
- *
- * @link https://trpc.io/docs/ssg
- */
-// export const getStaticProps = async (
-//   context: GetStaticPropsContext<{ filter: string }>,
-// ) => {
-//   const ssg = createSSGHelpers({
-//     router: appRouter,
-//     ctx: await createContext(),
-//   });
-//
-//   await ssg.fetchQuery('post.all');
-//
-//   return {
-//     props: {
-//       trpcState: ssg.dehydrate(),
-//       filter: context.params?.filter ?? 'all',
-//     },
-//     revalidate: 1,
-//   };
-// };

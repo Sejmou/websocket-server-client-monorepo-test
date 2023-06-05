@@ -2,12 +2,19 @@
  *
  * This is an example router, you can delete this file and then update `../pages/api/trpc/[trpc].tsx`
  */
-import { Post } from '@prisma/client';
 import { observable } from '@trpc/server/observable';
 import { EventEmitter } from 'events';
-import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authedProcedure, publicProcedure, router } from '../trpc';
+
+type Post = {
+  id: string;
+  text: string;
+  name: string;
+  createdAt: Date;
+};
+
+const posts: Post[] = []; // simple in-memory "database"
 
 interface MyEvents {
   add: (data: Post) => void;
@@ -58,13 +65,13 @@ export const postRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { name } = ctx.user;
-      const post = await prisma.post.create({
-        data: {
-          ...input,
-          name,
-          source: 'GITHUB',
-        },
-      });
+      const post: Post = {
+        id: input.id ?? Math.random().toString(36).substring(7),
+        text: input.text,
+        name,
+        createdAt: new Date(),
+      };
+      posts.push(post);
       ee.emit('add', post);
       delete currentlyTyping[name];
       ee.emit('isTypingUpdate');
@@ -96,15 +103,8 @@ export const postRouter = router({
       const take = input.take ?? 10;
       const cursor = input.cursor;
 
-      const page = await prisma.post.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
-        cursor: cursor ? { createdAt: cursor } : undefined,
-        take: take + 1,
-        skip: 0,
-      });
-      const items = page.reverse();
+      const postsCopy = [...posts];
+      const items = postsCopy.reverse();
       let prevCursor: null | typeof cursor = null;
       if (items.length > take) {
         const prev = items.shift();

@@ -1,16 +1,16 @@
 # tRPC Websocket Server + Tauri Desktop App Client Demo
-In this repo I am trying to figure out how to get a project working with tRPC where the server accepts requests via WebSockets and the client is a Desktop App built with Tauri. 
+In this repo I am trying to figure out how to get a basic project working with tRPC where the server accepts requests via WebSockets and the client is a Next.js app. 
+
+I started out with [this](https://github.com/trpc/examples-next-prisma-starter-websockets) template and removed the dependencies on `next-auth` and `prisma` (which was pre-configured with a postgres DB) as I don't want to use that for what I intend to build. 
 
 This thing uses `pnpm` so make sure to install it.
 ## Install
 `pnpm i`
 
-Currently, this thing doesn't run out of the box as a `postgres` DB is expected to exist and be linked via `DATABASE_URL` in your `.env` file?
+# Run in Development Mode
+`pnpm dev`
 
-I will try to remove all the DB-related things (references to postgres + Prisma).
-
-
-# OLD README from initial template: Prisma + tRPC + WebSockets
+# OLD README from initial template (Prisma + tRPC + WebSockets)
 
 Try demo http://websockets.trpc.io/
 
