@@ -1,4 +1,16 @@
-# Prisma + tRPC + WebSockets
+# tRPC Websocket Server + Tauri Desktop App Client Demo
+In this repo I am trying to figure out how to get a project working with tRPC where the server accepts requests via WebSockets and the client is a Desktop App built with Tauri. 
+
+This thing uses `pnpm` so make sure to install it.
+## Install
+`pnpm i`
+
+Currently, this thing doesn't run out of the box as a `postgres` DB is expected to exist and be linked via `DATABASE_URL` in your `.env` file?
+
+I will try to remove all the DB-related things (references to postgres + Prisma).
+
+
+# OLD README from initial template: Prisma + tRPC + WebSockets
 
 Try demo http://websockets.trpc.io/
 
