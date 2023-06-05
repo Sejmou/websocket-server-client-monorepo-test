@@ -1,10 +1,12 @@
 import { trpc } from '../utils/trpc';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function AddMessageForm({ onMessagePost }: { onMessagePost: () => void }) {
   const addPost = trpc.post.add.useMutation();
+  const { data: session } = useSession();
   const [message, setMessage] = useState('');
   const [enterToPostMessage, setEnterToPostMessage] = useState(true);
   async function postMessage() {
@@ -20,6 +22,30 @@ function AddMessageForm({ onMessagePost }: { onMessagePost: () => void }) {
 
   const isTyping = trpc.post.isTyping.useMutation();
 
+  const userName = session?.user?.name;
+  if (!userName) {
+    return (
+      <div className="flex w-full justify-between rounded bg-gray-800 px-3 py-2 text-lg text-gray-200">
+        <p className="font-bold">
+          You have to{' '}
+          <button
+            className="inline font-bold underline"
+            onClick={() => signIn()}
+          >
+            sign in
+          </button>{' '}
+          to write.
+        </p>
+        <button
+          onClick={() => signIn()}
+          data-testid="signin"
+          className="h-full rounded bg-indigo-500 px-4"
+        >
+          Sign In
+        </button>
+      </div>
+    );
+  }
   return (
     <>
       <form
@@ -94,6 +120,8 @@ export default function IndexPage() {
     return msgs;
   });
   type Post = NonNullable<typeof messages>[number];
+  const { data: session } = useSession();
+  const userName = session?.user?.name;
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   // fn to add and dedupe new messages onto state
@@ -154,7 +182,7 @@ export default function IndexPage() {
   return (
     <>
       <Head>
-        <title>Prisma Starter</title>
+        <title>tRPC w/ Next.js and WebSockets</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex h-screen flex-col md:flex-row">
@@ -163,33 +191,67 @@ export default function IndexPage() {
             <div className="flex h-full flex-col divide-y divide-gray-700">
               <header className="p-4">
                 <h1 className="text-3xl font-bold text-gray-50">
-                  tRPC WebSocket starter
+                  Minimal tRPC WebSocket starter
                 </h1>
+                <a
+                  className="text-gray-100 underline"
+                  href="https://github.com/Sejmou/websocket-server-client-monorepo-test.git"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View source on GitHub
+                </a>
                 <p className="text-sm text-gray-400">
-                  Showcases WebSocket + subscription support
-                  <br />
+                  Based on an{' '}
                   <a
                     className="text-gray-100 underline"
                     href="https://github.com/trpc/examples-next-prisma-starter-websockets"
                     target="_blank"
                     rel="noreferrer"
                   >
-                    View Source on GitHub
+                    example from tRPC docs
                   </a>
                 </p>
               </header>
               <div className="hidden flex-1 space-y-6 overflow-y-auto p-4 text-gray-400 md:block">
                 <article className="space-y-2">
-                  <h2 className="text-lg text-gray-200">Introduction</h2>
+                  <h2 className="text-lg text-gray-200">How does this work?</h2>
                   <ul className="list-inside list-disc space-y-2">
-                    <li>Open inspector and head to Network tab</li>
-                    <li>All client requests are handled through WebSockets</li>
                     <li>
-                      We have a simple backend subscription on new messages that
-                      adds the newly added message to the current state
+                      The server hosts a very simple in-memory
+                      &apos;database&apos; of messages created in a chatroom
+                    </li>
+                    <li>
+                      All client requests (chat messages) are handled through
+                      WebSockets (check via Network tab in DevTools)
+                    </li>
+                    <li>
+                      A backend subscription on new messages adds the newly
+                      added message to the current state
                     </li>
                   </ul>
                 </article>
+                {userName && (
+                  <article>
+                    <h2 className="text-lg text-gray-200">User information</h2>
+                    <ul className="space-y-2">
+                      <li className="text-lg">
+                        You&apos;re{' '}
+                        <input
+                          id="name"
+                          name="name"
+                          type="text"
+                          disabled
+                          className="bg-transparent"
+                          value={userName}
+                        />
+                      </li>
+                      <li>
+                        <button onClick={() => signOut()}>Sign Out</button>
+                      </li>
+                    </ul>
+                  </article>
+                )}
               </div>
             </div>
           </div>

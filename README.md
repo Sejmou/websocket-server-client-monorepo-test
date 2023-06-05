@@ -1,25 +1,13 @@
 # tRPC Websocket Server + Tauri Desktop App Client Demo
-In this repo I am trying to figure out how to get a basic project working with tRPC where the server accepts requests via WebSockets and the client is a Next.js app. 
+This repo showcases how tRPC can be used with WebSockets in a Next.js app. It features a basic chat room where users can pick a username and start texting right away. All incoming messages are sent to connected clients in realtime via websockets, just like the information on who is currently typing. 
 
-I started out with [this](https://github.com/trpc/examples-next-prisma-starter-websockets) template and removed the dependencies on `next-auth` and `prisma` (which was pre-configured with a postgres DB) as I don't want to use that for what I intend to build. 
-
-This thing uses `pnpm` so make sure to install it.
-## Install
-`pnpm i`
-
-# Run in Development Mode
-`pnpm dev`
-
-# OLD README from initial template (Prisma + tRPC + WebSockets)
-
-Try demo http://websockets.trpc.io/
+This is a dumbed down version of the [tRPC Next.js Websocket example](https://github.com/trpc/examples-next-prisma-websockets-starter). I removed the dependency on `prisma` (which was pre-configured with a postgres DB) and replaced it with a simple in-memory 'database'. The authentication logic was also dumbed down: users just enter a username, no password or anything is required.
 
 ## Features
 
 - 🧙‍♂️ E2E type safety with [tRPC](https://trpc.io)
 - ⚡ Full-stack React with Next.js
 - ⚡ WebSockets / Subscription support
-- ⚡ Database with Prisma
 - 🔐 Authorization using [next-auth](https://next-auth.js.org/)
 - ⚙️ VSCode extensions
 - 🎨 ESLint + Prettier
@@ -27,18 +15,24 @@ Try demo http://websockets.trpc.io/
   - ✅ E2E testing with [Playwright](https://playwright.dev/)
   - ✅ Linting
 
-## Setup
+This thing uses `pnpm` so make sure to install it.
+## Install dependencies
+`pnpm i`
+
+## Commands
 
 ```bash
-pnpm create next-app --example https://github.com/trpc/trpc --example-path examples/next-prisma-websockets-starter trpc-prisma-websockets-starter
-cd trpc-prisma-websockets-starter
-pnpm i
-pnpm dx
+pnpm build      # runs `next build`
+pnpm dev        # starts next.js + WebSocket server in development mode
+pnpm test-dev   # runs e2e tests on dev
+pnpm test-start # runs e2e tests on `next start` - build required before
+pnpm test:unit  # runs normal Vitest unit tests
+pnpm test:e2e   # runs e2e tests
 ```
 
 ## Deployment
 
-### Using [Render](https://render.com/)
+### Using [Render](https://render.com/) - NOT TESTED (from original tRPC template)
 
 The project contains a [`render.yaml`](./render.yaml) [_"Blueprint"_](https://render.com/docs/blueprint-spec) which makes the project easily deployable on [Render](https://render.com/).
 
@@ -47,45 +41,3 @@ The database is setup with a `starter` plan, but you can use a free plan for 90 
 Go to [dashboard.render.com/blueprints](https://dashboard.render.com/blueprints) and connect to this Blueprint and see how the app and database automatically gets deployed.
 
 You will either need to create an environment group called `trpc-websockets` with environment variables or remove that from `render.yaml` in favor of manual environment variables that overrides the ones in `/.env`.
-
-## Files of note
-
-<table>
-  <thead>
-    <tr>
-      <th>Path</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="./prisma/schema.prisma"><code>./prisma/schema.prisma</code></a></td>
-      <td>Prisma schema</td>
-    </tr>
-    <tr>
-      <td><a href="./src/api/trpc/[trpc].tsx"><code>./src/api/trpc/[trpc].tsx</code></a></td>
-      <td>tRPC response handler</td>
-    </tr>
-    <tr>
-      <td><a href="./src/server/routers"><code>./src/server/routers</code></a></td>
-      <td>Your app's different tRPC-routers</td>
-    </tr>
-  </tbody>
-</table>
-
-## Commands
-
-```bash
-pnpm build      # runs `prisma generate` + `prisma migrate` + `next build`
-pnpm db-nuke    # resets local db
-pnpm dev        # starts next.js + WebSocket server
-pnpm dx         # starts postgres db + runs migrations + seeds + starts next.js
-pnpm test-dev   # runs e2e tests on dev
-pnpm test-start # runs e2e tests on `next start` - build required before
-pnpm test:unit  # runs normal Vitest unit tests
-pnpm test:e2e   # runs e2e tests
-```
-
----
-
-Created by [@alexdotjs](https://twitter.com/alexdotjs).
