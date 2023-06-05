@@ -7,7 +7,7 @@ test('send message', async ({ browser, page }) => {
   await viewer.goto('/');
 
   await page.goto('/api/auth/signin');
-  await page.type('[name="name"]', 'test');
+  await page.type('[name="username"]', 'test');
   await page.click('[type="submit"]');
 
   const nonce =
